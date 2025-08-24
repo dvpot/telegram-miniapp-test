@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f4f4f4;
+    }
+    .card {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 id="greeting">Привет!</h2>
+  </div>
+
+  <script>
+    // Получаем объект Telegram WebApp
+    const tg = window.Telegram.WebApp;
+
+    tg.ready(); // сигнализируем, что мини-приложение загружено
+
+    // Данные о пользователе
+    const user = tg.initDataUnsafe?.user;
+
+    if (user) {
+      document.getElementById("greeting").textContent =
+        `Привет, ${user.first_name}! :)`;
+    } else {
+      document.getElementById("greeting").textContent =
+        "Привет, гость!";
+    }
+  </script>
+</body>
+</html>
