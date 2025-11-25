@@ -1,151 +1,401 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Telegram Mini App — English Words</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 20px;
+    :root {
+      --bg: #f2f5f7;
+      --card: #fff;
+      --accent: #0088cc;
+      --muted: #6b7280;
+      --radius: 14px;
     }
-    .container {
-      max-width: 450px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    html,body {
+      height: 100%;
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
-    h2 {
-      margin-top: 0;
+
+    /* контейнер на весь экран */
+    .app {
+      max-width: 600px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      box-sizing: border-box;
     }
-    .field {
-      margin-bottom: 18px;
+
+    /* карточка с контентом */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(11,22,34,0.08);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1 1 auto;
+      overflow: hidden;
     }
-    .hidden-field {
-      display: none;
-      cursor: pointer;
+
+    /* header */
+    .header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
     }
-    .label {
-      font-weight: bold;
-      color: #555;
-      margin-bottom: 4px;
+    .username {
+      font-size:20px;
+      font-weight:700;
+      margin:0;
     }
-    .image-box img {
-      width: 100%;
-      border-radius: 12px;
-      margin-bottom: 10px;
+    .sub {
+      color:var(--muted);
+      font-size:13px;
     }
-    button {
-      width: 100%;
-      padding: 14px;
-      border: none;
+
+    /* image area (big) */
+    .image-area {
+      flex: 1 1 50%;
+      min-height: 140px;
       border-radius: 10px;
-      font-size: 16px;
-      background: #0088cc;
-      color: white;
-      cursor: pointer;
-      margin-top: 10px;
+      overflow: hidden;
+      background: #efefef;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .image-area img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .image-placeholder {
+      color:var(--muted);
+      font-size:14px;
+      padding: 12px;
+    }
+
+    /* content area (word/trans/cr/translation) */
+    .content {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    /* each field area */
+    .field {
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-height: 48px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      cursor:default;
+      position:relative;
+      overflow:hidden;
+    }
+    .field-label {
+      font-weight:600;
+      color:#333;
+      font-size:15px;
+    }
+    .field-value {
+      color:#111;
+      font-size:18px;
+      font-weight:700;
+      text-align:right;
+      word-break:break-word;
+      max-width:70%;
+    }
+
+    /* placeholders for hidden items (visible and clickable) */
+    .placeholder {
+      width:100%;
+      text-align:left;
+      color:var(--muted);
+      font-weight:600;
+      font-size:14px;
+      padding:12px;
+      border-radius:8px;
+      background:transparent;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    /* hidden-panel - the panel that animates in */
+    .hidden-panel {
+      max-height:0;
+      opacity:0;
+      transform:translateY(-6px);
+      transition: all 300ms cubic-bezier(.2,.9,.2,1);
+      overflow:hidden;
+    }
+    .hidden-panel.show {
+      max-height:200px; /* достаточно для текста */
+      opacity:1;
+      transform:translateY(0);
+      padding-top:8px;
+    }
+
+    /* footer with next button fixed to bottom inside card */
+    .footer {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding-top:6px;
+    }
+    .btn {
+      width:100%;
+      padding:12px 16px;
+      border-radius:10px;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    /* закрепить кнопку внизу страницы (если нужно внешнее) */
+    .bottom-fixed {
+      margin-top:8px;
+    }
+
+    /* small note */
+    .note {
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+      padding:6px 0 0;
+    }
+
+    @media (max-width:420px) {
+      .username { font-size:18px; }
+      .field-value { font-size:16px; }
     }
   </style>
 </head>
 <body>
+  <div class="app">
+    <div class="card" role="main" aria-live="polite">
+      <div class="header">
+        <div>
+          <div id="username" class="username">Привет!</div>
+          <div id="subtitle" class="sub">Учи слова быстро</div>
+        </div>
+        <div id="small-info" class="sub">@infoton_bot</div>
+      </div>
 
-<div class="container">
-  <h2 id="username">Привет!</h2>
+      <div id="imageArea" class="image-area" aria-hidden="false">
+        <!-- картинка или placeholder -->
+        <div id="imagePlaceholder" class="image-placeholder">Картинка отсутствует</div>
+      </div>
 
-  <!-- Изображение — показываем всегда -->
-  <div class="field" id="imageField">
-    <div class="label">Картинка</div>
-    <div class="image-box" id="imageBox"></div>
+      <div class="content">
+
+        <!-- Английское слово — скрыто, но показывается placeholder (который виден и кликабелен) -->
+        <div>
+          <div id="wordPlaceholder" class="placeholder" role="button" tabindex="0">
+            Показать английское слово
+          </div>
+          <div id="wordPanel" class="hidden-panel" aria-hidden="true">
+            <div class="field">
+              <div class="field-label">Английское</div>
+              <div id="wordText" class="field-value">---</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Транскрипция — скрыто аналогично -->
+        <div>
+          <div id="transPlaceholder" class="placeholder" role="button" tabindex="0">
+            Показать транскрипцию
+          </div>
+          <div id="transPanel" class="hidden-panel" aria-hidden="true">
+            <div class="field">
+              <div class="field-label">Транскрипция</div>
+              <div id="transText" class="field-value">---</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Перевод — показываем сразу -->
+        <div class="field" aria-hidden="false">
+          <div class="field-label">Перевод</div>
+          <div id="translationText" class="field-value">---</div>
+        </div>
+
+      </div>
+
+      <div class="footer bottom-fixed">
+        <button id="nextBtn" class="btn">Следующее слово</button>
+      </div>
+
+      <div id="debugNote" class="note" style="display:none;"></div>
+    </div>
   </div>
-
-  <!-- Скрытое английское слово -->
-  <div class="field hidden-field" id="wordField">
-    <div class="label">Английское слово</div>
-    <div id="wordText"></div>
-  </div>
-
-  <!-- Скрытое поле с транскрипцией -->
-  <div class="field hidden-field" id="transField">
-    <div class="label">Транскрипция</div>
-    <div id="transText"></div>
-  </div>
-
-  <!-- Перевод — показываем всегда -->
-  <div class="field" id="translationField">
-    <div class="label">Перевод</div>
-    <div id="translationText"></div>
-  </div>
-
-  <button id="nextBtn">Следующее слово</button>
-</div>
 
 <script>
-  const tg = window.Telegram.WebApp;
-  tg.ready();
+  const tg = window.Telegram?.WebApp;
+  if (tg) tg.ready();
 
-  // Показ имени пользователя
-  const user = tg.initDataUnsafe?.user;
+  const usernameEl = document.getElementById('username');
+  const subtitleEl = document.getElementById('subtitle');
+
+  const user = tg?.initDataUnsafe?.user;
   if (user) {
-    document.getElementById("username").textContent =
-      `Привет, ${user.first_name}!`;
+    usernameEl.textContent = `Привет, ${user.first_name || user.username || 'друг'}!`;
+  } else {
+    usernameEl.textContent = 'Привет!';
   }
+
+  // элементы
+  const imageArea = document.getElementById('imageArea');
+  const imagePlaceholder = document.getElementById('imagePlaceholder');
+  const wordPlaceholder = document.getElementById('wordPlaceholder');
+  const transPlaceholder = document.getElementById('transPlaceholder');
+  const wordPanel = document.getElementById('wordPanel');
+  const transPanel = document.getElementById('transPanel');
+  const wordText = document.getElementById('wordText');
+  const transText = document.getElementById('transText');
+  const translationText = document.getElementById('translationText');
+  const nextBtn = document.getElementById('nextBtn');
+  const debugNote = document.getElementById('debugNote');
 
   let words = [];
+  let current = null;
 
-  // Загружаем JSON со словами
-  fetch("words.json")
-    .then(r => r.json())
-    .then(data => {
-      words = data;
-      loadRandomWord();
-    });
-
-  // Показать скрытое поле при нажатии
-  function enableToggle(id) {
-    const el = document.getElementById(id);
-    el.addEventListener("click", () => {
-      el.style.display = "block";
-    });
+  // helper: show panel with animation
+  function togglePanel(panel, show) {
+    if (show) {
+      panel.classList.add('show');
+      panel.setAttribute('aria-hidden','false');
+    } else {
+      panel.classList.remove('show');
+      panel.setAttribute('aria-hidden','true');
+    }
   }
 
-  enableToggle("wordField");
-  enableToggle("transField");
+  // делаем placeholder кликабельным (и доступным по Enter)
+  function attachToggle(placeholder, panel) {
+    placeholder.addEventListener('click', () => togglePanel(panel, !panel.classList.contains('show')));
+    placeholder.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePanel(panel, !panel.classList.contains('show'));
+      }
+    });
+  }
+  attachToggle(wordPlaceholder, wordPanel);
+  attachToggle(transPlaceholder, transPanel);
 
-  // Функция рандома + заполнения страницы
+  // Загружаем words.json с попыткой корректной кодировки
+  async function loadWords() {
+    try {
+      // сначала пробуем обычный JSON
+      const resp = await fetch('words.json', {cache: "no-store"});
+      // Пробуем ответ как json
+      try {
+        const data = await resp.clone().json();
+        words = data;
+        return;
+      } catch (errJson) {
+        // если не получилось, пробуем декодировать как текст/CP1251
+        const blob = await resp.blob();
+        const arr = await blob.arrayBuffer();
+
+        // Попытка декодировать как utf-8
+        try {
+          const decoderUtf = new TextDecoder('utf-8');
+          const txt = decoderUtf.decode(arr);
+          words = JSON.parse(txt);
+          return;
+        } catch (eUtf) {
+          // Попытка cp1251 (windows-1251) если доступен
+          try {
+            const decoderWin = new TextDecoder('windows-1251');
+            const txt2 = decoderWin.decode(arr);
+            words = JSON.parse(txt2);
+            debugNote.style.display='block';
+            debugNote.textContent = 'Файл words.json был декодирован как windows-1251 — рекомендую переконвертировать в UTF-8.';
+            return;
+          } catch (eWin) {
+            console.error('Не удалось распарсить words.json', eWin);
+            debugNote.style.display='block';
+            debugNote.textContent = 'Ошибка: не удалось прочитать words.json (проверь кодировку/формат).';
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки words.json', err);
+      debugNote.style.display='block';
+      debugNote.textContent = 'Ошибка загрузки words.json. Убедись, что файл доступен и сохранён в UTF-8.';
+    }
+  }
+
+  // Вставить картинку или placeholder
+  function setImage(src) {
+    // очистим
+    imageArea.innerHTML = '';
+    if (src) {
+      const img = document.createElement('img');
+      // если локальный путь (например при разработке), оставим как есть
+      img.src = src;
+      img.alt = 'image';
+      img.onerror = () => {
+        imageArea.innerHTML = '<div class="image-placeholder">Картинка недоступна</div>';
+      };
+      imageArea.appendChild(img);
+    } else {
+      imageArea.innerHTML = '<div class="image-placeholder">Картинка отсутствует</div>';
+    }
+  }
+
+  // Загрузить рандомное слово и заполнить поля
   function loadRandomWord() {
-    const w = words[Math.floor(Math.random() * words.length)];
+    if (!words || words.length === 0) {
+      translationText.textContent = '---';
+      wordText.textContent = '---';
+      transText.textContent = '---';
+      setImage(null);
+      return;
+    }
+    const idx = Math.floor(Math.random() * words.length);
+    current = words[idx];
 
-    // картинка
-    const imgBox = document.getElementById("imageBox");
-    imgBox.innerHTML = w.image
-      ? `<img src="${w.image}" alt="image">`
-      : `---`;
+    // корректно выставляем поля (защита от null/undefined)
+    wordText.textContent = current.word && current.word.length ? current.word : '---';
+    transText.textContent = current.transcription && current.transcription.length ? current.transcription : '---';
+    translationText.textContent = current.translation && current.translation.length ? current.translation : '---';
 
-    // слово
-    document.getElementById("wordText").textContent =
-      w.word || "---";
+    // картинка: может быть пустая строка; пусть путь относительный (images/xxx) или абсолютный URL
+    setImage(current.image && current.image.length ? current.image : null);
 
-    // транскрипция
-    document.getElementById("transText").textContent =
-      w.transcription || "---";
-
-    // перевод
-    document.getElementById("translationText").textContent =
-      w.translation || "---";
-
-    // скрываем поля обратно
-    document.getElementById("wordField").style.display = "none";
-    document.getElementById("transField").style.display = "none";
+    // скрываем панели обратно
+    togglePanel(wordPanel, false);
+    togglePanel(transPanel, false);
   }
 
-  // Кнопка "следующее слово"
-  document.getElementById("nextBtn").addEventListener("click", loadRandomWord);
-</script>
+  // обработчики
+  nextBtn.addEventListener('click', () => loadRandomWord());
 
+  // init
+  (async () => {
+    await loadWords();
+    loadRandomWord();
+  })();
+</script>
 </body>
 </html>
