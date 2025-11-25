@@ -81,42 +81,40 @@
       flex-direction: column;
       gap: 16px;
     }
-    .field {
-      background: #fafafa;
-      border-radius: 10px;
-      padding: 16px;
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      text-align: center;
-    }
-    .field.hidden {
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: all 300ms ease;
-      pointer-events: none;
-    }
-    .field.show {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: all;
-    }
+.field {
+  /* ... остальной код ... */
+  opacity: 1;
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+.field.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+.field.show {  /* если захочешь использовать класс show для анимации появления */
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
     .word-text {
       font-size: 22px;
       font-weight: 700;
       margin: 0;
       line-height: 1;
+        opacity: 0;
+  transition: opacity 300ms ease;
     }
     .trans-text {
       font-size: 16px;
       color: var(--muted);
       margin: 4px 0 0 0;
       line-height: 1.2;
+        opacity: 0;
+  transition: opacity 300ms ease;
     }
+    .word-text.visible, .trans-text.visible {
+  opacity: 1;
+}
     .translation-field {
       background: #fafafa;
       border-radius: 10px;
@@ -263,3 +261,4 @@
   </script>
 </body>
 </html>
+
