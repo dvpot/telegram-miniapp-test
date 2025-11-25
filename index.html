@@ -233,4 +233,33 @@
 
       wordText.textContent = current.word || '---';
       transText.textContent = current.transcription || '---';
-      translationText.textContent = current.trans
+      translationText.textContent = current.translation || '---';
+      setImage(current.image && current.image.length ? current.image : null);
+
+      // прячем слово + транскрипцию
+      wordField.classList.add('hidden');
+      setTimeout(() => {
+        wordField.classList.remove('hidden');
+        // не показываем сразу содержимое, ждем первый клик
+      }, 50);
+    }
+
+    wordField.addEventListener('click', () => {
+      if (!wordRevealed) {
+        wordText.style.opacity = '1';
+        transText.style.opacity = '1';
+        wordRevealed = true;
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      loadRandomWord();
+    });
+
+    (async () => {
+      await loadWords();
+      loadRandomWord();
+    })();
+  </script>
+</body>
+</html>
