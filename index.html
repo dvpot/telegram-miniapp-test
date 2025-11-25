@@ -82,19 +82,28 @@
       gap: 16px;
     }
 .field {
-  /* ... остальной код ... */
-  opacity: 1;
-  transition: opacity 300ms ease, transform 300ms ease;
+  background: #fafafa;
+  border: 1px solid #ccc;         /* добавляем контур */
+  border-radius: 10px;
+  padding: 16px;
+  min-height: 60px;
+  display: flex;                  /* делаем flex-контейнер */
+  flex-direction: column;         /* чтобы слово было сверху, транскрипция — снизу */
+  justify-content: center;        /* вертикальное центрирование */
+  align-items: center;            /* горизонтальное центрирование */
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  text-align: center;
 }
 .field.hidden {
   opacity: 0;
   transform: translateY(-10px);
-  pointer-events: none;
+  transition: opacity 300ms ease, transform 300ms ease;
 }
 .field.show {  /* если захочешь использовать класс show для анимации появления */
   opacity: 1;
   transform: translateY(0);
-  pointer-events: all;
 }
     .word-text {
       font-size: 22px;
@@ -114,6 +123,7 @@
     }
     .word-text.visible, .trans-text.visible {
   opacity: 1;
+  transition: opacity 300ms ease;
 }
     .translation-field {
       background: #fafafa;
@@ -241,18 +251,21 @@
   wordText.classList.remove('visible');
   transText.classList.remove('visible');
 
-  // Через небольшой таймаут показываем поле (без текста): это даёт время для анимации opacity
+ // Даем полю класс hidden, чтобы скрыть текст сразу
+  wordField.classList.add('hidden');
+
+  // Через небольшой таймаут показываем сам контейнер поля, но текст — всё ещё скрыт
   setTimeout(() => {
     wordField.classList.remove('hidden');
   }, 50);
 }
 
 wordField.addEventListener('click', () => {
-  // показываем текст при клике
-  wordText.classList.add('visible');
-  transText.classList.add('visible');
-  // помечаем, чтобы больше не реагировать (если нужно)
-  wordField.style.pointerEvents = 'none';
+  if (!wordRevealed) {
+    wordText.classList.add('visible');
+    transText.classList.add('visible');
+    wordRevealed = true;
+  }
 });
 
     nextBtn.addEventListener('click', () => {
@@ -266,5 +279,6 @@ wordField.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
