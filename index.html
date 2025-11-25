@@ -229,26 +229,31 @@
       current = words[idx];
       wordRevealed = false;
 
-      wordText.textContent = current.word || '---';
-      transText.textContent = current.transcription || '---';
-      translationText.textContent = current.translation || '---';
-      setImage(current.image && current.image.length ? current.image : null);
+  wordText.textContent = current.word || '---';
+  transText.textContent = current.transcription || '---';
+  translationText.textContent = current.translation || '---';
+  setImage(current.image && current.image.length ? current.image : null);
 
-      // прячем слово + транскрипцию
-      wordField.classList.add('hidden');
-      setTimeout(() => {
-        wordField.classList.remove('hidden');
-        // не показываем сразу содержимое, ждем первый клик
-      }, 50);
-    }
+  // Скрываем поле полностью (чтобы анимация срабатывала)
+  wordField.classList.add('hidden');
 
-    wordField.addEventListener('click', () => {
-      if (!wordRevealed) {
-        wordText.style.opacity = '1';
-        transText.style.opacity = '1';
-        wordRevealed = true;
-      }
-    });
+  // Убираем метку "visible" у текста
+  wordText.classList.remove('visible');
+  transText.classList.remove('visible');
+
+  // Через небольшой таймаут показываем поле (без текста): это даёт время для анимации opacity
+  setTimeout(() => {
+    wordField.classList.remove('hidden');
+  }, 50);
+}
+
+wordField.addEventListener('click', () => {
+  // показываем текст при клике
+  wordText.classList.add('visible');
+  transText.classList.add('visible');
+  // помечаем, чтобы больше не реагировать (если нужно)
+  wordField.style.pointerEvents = 'none';
+});
 
     nextBtn.addEventListener('click', () => {
       loadRandomWord();
@@ -261,4 +266,5 @@
   </script>
 </body>
 </html>
+
 
