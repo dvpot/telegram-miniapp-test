@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "word": "apple",
+    "transcription": "[Л€Г¦pl]",
+    "translation": "СЏР±Р»РѕРєРѕ",
+    "image": "images/apple.jpg"
+  },
+  {
+    "id": 2,
+    "word": "cat",
+    "transcription": "",
+    "translation": "РєРѕС‚",
+    "image": ""
+  },
+  {
+    "id": 3,
+    "word": "house",
+    "transcription": "[haКЉs]",
+    "translation": "РґРѕРј",
+    "image": "images/house.jpg"
+  }
+]
