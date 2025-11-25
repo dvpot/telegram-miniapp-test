@@ -2,47 +2,150 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Telegram Mini App</title>
+  <title>Telegram Mini App — English Words</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f4f4f4;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
     }
-    .card {
+    .container {
+      max-width: 450px;
+      margin: auto;
       background: white;
-      padding: 20px 30px;
+      padding: 20px;
       border-radius: 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .field {
+      margin-bottom: 18px;
+    }
+    .hidden-field {
+      display: none;
+      cursor: pointer;
+    }
+    .label {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .image-box img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      background: #0088cc;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2 id="greeting">������!</h2>
+
+<div class="container">
+  <h2 id="username">Привет!</h2>
+
+  <!-- Изображение — показываем всегда -->
+  <div class="field" id="imageField">
+    <div class="label">Картинка</div>
+    <div class="image-box" id="imageBox"></div>
   </div>
 
-  <script>
-    // �������� ������ Telegram WebApp
-    const tg = window.Telegram.WebApp;
+  <!-- Скрытое английское слово -->
+  <div class="field hidden-field" id="wordField">
+    <div class="label">Английское слово</div>
+    <div id="wordText"></div>
+  </div>
 
-    tg.ready(); // �������������, ��� ����-���������� ���������
+  <!-- Скрытое поле с транскрипцией -->
+  <div class="field hidden-field" id="transField">
+    <div class="label">Транскрипция</div>
+    <div id="transText"></div>
+  </div>
 
-    // ������ � ������������
-    const user = tg.initDataUnsafe?.user;
+  <!-- Перевод — показываем всегда -->
+  <div class="field" id="translationField">
+    <div class="label">Перевод</div>
+    <div id="translationText"></div>
+  </div>
 
-    if (user) {
-      document.getElementById("greeting").textContent =
-        `������, ${user.first_name}! :)`;
-    } else {
-      document.getElementById("greeting").textContent =
-        "������, �����!";
-    }
-  </script>
+  <button id="nextBtn">Следующее слово</button>
+</div>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+
+  // Показ имени пользователя
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    document.getElementById("username").textContent =
+      `Привет, ${user.first_name}!`;
+  }
+
+  let words = [];
+
+  // Загружаем JSON со словами
+  fetch("words.json")
+    .then(r => r.json())
+    .then(data => {
+      words = data;
+      loadRandomWord();
+    });
+
+  // Показать скрытое поле при нажатии
+  function enableToggle(id) {
+    const el = document.getElementById(id);
+    el.addEventListener("click", () => {
+      el.style.display = "block";
+    });
+  }
+
+  enableToggle("wordField");
+  enableToggle("transField");
+
+  // Функция рандома + заполнения страницы
+  function loadRandomWord() {
+    const w = words[Math.floor(Math.random() * words.length)];
+
+    // картинка
+    const imgBox = document.getElementById("imageBox");
+    imgBox.innerHTML = w.image
+      ? `<img src="${w.image}" alt="image">`
+      : `---`;
+
+    // слово
+    document.getElementById("wordText").textContent =
+      w.word || "---";
+
+    // транскрипция
+    document.getElementById("transText").textContent =
+      w.transcription || "---";
+
+    // перевод
+    document.getElementById("translationText").textContent =
+      w.translation || "---";
+
+    // скрываем поля обратно
+    document.getElementById("wordField").style.display = "none";
+    document.getElementById("transField").style.display = "none";
+  }
+
+  // Кнопка "следующее слово"
+  document.getElementById("nextBtn").addEventListener("click", loadRandomWord);
+</script>
+
 </body>
 </html>
