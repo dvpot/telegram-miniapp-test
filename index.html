@@ -176,7 +176,7 @@
         <div id="wordField" class="field">
           <div>
             <p id="wordText" class="word-text">---</p>
-            <p id="transText" class="trans-text">[---]</p>
+            <p id="transText" class="trans-text">---</p>
           </div>
         </div>
 
@@ -240,7 +240,7 @@
       wordRevealed = false;
 
   wordText.textContent = current.word || '---';
-  transText.textContent = current.transcription || '---';
+  transText.textContent = '['+current.transcription+']' || '---';
   translationText.textContent = current.translation || '---';
   setImage(current.image && current.image.length ? current.image : null);
 
@@ -279,6 +279,7 @@ wordField.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
