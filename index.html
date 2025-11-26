@@ -218,20 +218,23 @@
       words = await resp.json();
     }
 
-    function setImage(src) {
-      imageArea.innerHTML = '';
-      if (src) {
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = 'image';
-        img.onerror = () => {
-          imageArea.innerHTML = '<div class="image-placeholder">Картинка недоступна</div>';
-        };
-        imageArea.appendChild(img);
-      } else {
-        imageArea.innerHTML = '<div class="image-placeholder">Картинка отсутствует</div>';
-      }
-    }
+function setImage(src) {
+  imageArea.innerHTML = ''; // очистить
+  if (src) {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = current.word || 'word image';
+    img.style.width = '100%';
+    img.style.height = 'auto';
+    img.onerror = () => {
+      imageArea.innerHTML = '<div class="image-placeholder">Картинка недоступна</div>';
+    };
+    imageArea.appendChild(img);
+  } else {
+    imageArea.innerHTML = '<div class="image-placeholder">Картинка отсутствует</div>';
+  }
+}
+
 
     function loadRandomWord() {
       if (!words.length) return;
@@ -279,6 +282,7 @@ wordField.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
