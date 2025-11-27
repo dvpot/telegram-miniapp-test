@@ -158,6 +158,40 @@
     .btn:hover {
       background: var(--accent-dark);
     }
+
+    .field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.word-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.tts-btn.small {
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#speakEN {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+
+#speakEN.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
   </style>
 </head>
 
@@ -179,14 +213,24 @@
         <button class="tts-btn" id="speakRU">🔊 RU</button>
       </div>
 
-      <div class="field" id="wordField">
-        <p id="wordText" class="word-text">---</p>
-        <p id="transText" class="trans-text">---</p>
-      </div>
+<!-- БЛОК СЛОВА И ТРАНСКРИПЦИИ -->
+<div class="field" id="wordField">
+  <div class="field-row">
+    <div class="word-col">
+      <p id="wordText" class="word-text">---</p>
+      <p id="transText" class="trans-text">---</p>
+    </div>
+    <button class="tts-btn small" id="speakEN">🔊</button>
+  </div>
+</div>
 
-      <div class="translation-field">
-        <p id="translationText">---</p>
-      </div>
+<!-- БЛОК ПЕРЕВОДА -->
+<div class="translation-field">
+  <div class="field-row">
+    <p id="translationText">---</p>
+    <button class="tts-btn small" id="speakRU">🔊</button>
+  </div>
+</div>
 
       <button id="nextBtn" class="btn">Следующее слово</button>
     </div>
@@ -263,6 +307,8 @@ function loadRandomWord() {
     // скрыть текст
     wordText.classList.remove("visible");
     transText.classList.remove("visible");
+    speakEN.classList.remove("visible");
+
 }
 
 /* ПОКАЗ СЛОВА ПО КЛИКУ */
@@ -270,6 +316,7 @@ wordField.addEventListener("click", () => {
     if (!revealed) {
         wordText.classList.add("visible");
         transText.classList.add("visible");
+        speakEN.classList.add("visible");
         revealed = true;
     }
 });
@@ -289,3 +336,4 @@ nextBtn.onclick = loadRandomWord;
 </script>
 </body>
 </html>
+
