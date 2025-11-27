@@ -1,161 +1,284 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>English Trainer</title>
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 450px;
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
-        }
-
-        .word-block {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            background: #fafafa;
-            border: 1px solid #e0e0e0;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .word {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .translation {
-            font-size: 22px;
-            color: #555;
-            margin-top: 12px;
-        }
-
-        .tts-btn {
-            background: #4a90e2;
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 5px 3px;
-            transition: 0.2s;
-        }
-
-        .tts-btn:hover {
-            background: #3578c6;
-        }
-
-        .picture {
-            width: 100%;
-            max-height: 260px;
-            object-fit: cover;
-            border-radius: 14px;
-            margin-top: 15px;
-            border: 1px solid #ddd;
-        }
-
-        .next-btn {
-            width: 100%;
-            padding: 15px;
-            background: #2ecc71;
-            border: none;
-            color: white;
-            font-size: 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.2s;
-        }
-
-        .next-btn:hover {
-            background: #24b864;
-        }
-    </style>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Telegram Mini App — English Words</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: #f2f5f7;
+      --card: #fff;
+      --accent: #0088cc;
+      --muted: #6b7280;
+      --radius: 14px;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: sans-serif;
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .app {
+      max-width: 600px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(11,22,34,0.08);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1 1 auto;
+      overflow: hidden;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .username {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .image-area {
+      flex: 1 1 40%;
+      min-height: 140px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #efefef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .image-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .image-placeholder {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 12px;
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+.field {
+  background: #fafafa;
+  border: 1px solid #ccc;         /* добавляем контур */
+  border-radius: 10px;
+  padding: 16px;
+  min-height: 60px;
+  display: flex;                  /* делаем flex-контейнер */
+  flex-direction: column;         /* чтобы слово было сверху, транскрипция — снизу */
+  justify-content: center;        /* вертикальное центрирование */
+  align-items: center;            /* горизонтальное центрирование */
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  text-align: center;
+}
+.field.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+.field.show {  /* если захочешь использовать класс show для анимации появления */
+  opacity: 1;
+  transform: translateY(0);
+}
+    .word-text {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1;
+        opacity: 0;
+  transition: opacity 300ms ease;
+    }
+    .trans-text {
+      font-size: 16px;
+      color: var(--muted);
+      margin: 4px 0 0 0;
+      line-height: 1.2;
+        opacity: 0;
+  transition: opacity 300ms ease;
+    }
+    .word-text.visible, .trans-text.visible {
+  opacity: 1;
+  transition: opacity 300ms ease;
+}
+    .translation-field {
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 16px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .translation-text {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin: 0;
+    }
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 6px;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+  <div class="app">
+    <div class="card">
+      <div class="header">
+        <div>
+          <div id="username" class="username">Привет!</div>
+        </div>
+      </div>
 
-    <div class="container">
-        <div class="word-block" id="wordCard">
-            Загрузка...
+      <div id="imageArea" class="image-area">
+        <div id="imagePlaceholder" class="image-placeholder">Картинка отсутствует</div>
+      </div>
+
+      <div class="content">
+        <div id="wordField" class="field">
+          <div>
+            <p id="wordText" class="word-text">---</p>
+            <p id="transText" class="trans-text">---</p>
+          </div>
         </div>
 
-        <button class="next-btn" onclick="loadNextWord()">Следующее слово</button>
+        <div class="translation-field">
+          <p id="translationText" class="translation-text">---</p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button id="nextBtn" class="btn">Следующее слово</button>
+      </div>
     </div>
+  </div>
 
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.ready();
 
-<script>
+    const usernameEl = document.getElementById('username');
+    const user = tg?.initDataUnsafe?.user;
+    if (user) {
+      usernameEl.textContent = `Привет, ${user.first_name || user.username}!`;
+    }
+
+    const imageArea = document.getElementById('imageArea');
+    const imagePlaceholder = document.getElementById('imagePlaceholder');
+    const wordField = document.getElementById('wordField');
+    const wordText = document.getElementById('wordText');
+    const transText = document.getElementById('transText');
+    const translationText = document.getElementById('translationText');
+    const nextBtn = document.getElementById('nextBtn');
+
     let words = [];
-    let currentIndex = -1;
+    let current = null;
+    let wordRevealed = false;
 
-    // ===================== SPEECH API =====================
-    function speak(text, lang = "en-US") {
-        if (!window.speechSynthesis) {
-            alert("Ваш браузер не поддерживает озвучку.");
-            return;
-        }
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = lang;
-
-        const voices = speechSynthesis.getVoices();
-        const voice = voices.find(v => v.lang === lang);
-        if (voice) utterance.voice = voice;
-
-        speechSynthesis.speak(utterance);
-    }
-
-    // ===================== LOAD WORDS =====================
     async function loadWords() {
-        const response = await fetch("words.json");
-        words = await response.json();
-        loadNextWord();
+      const resp = await fetch('words.json', { cache: "no-store" });
+      words = await resp.json();
     }
 
-    // ===================== SHOW WORD =====================
-    function showWord(item) {
-        const card = document.getElementById("wordCard");
+function setImage(src) {
+  imageArea.innerHTML = ''; // очистить
+  if (src) {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = current.word || 'word image';
+    img.style.width = '100%';
+    img.style.height = 'auto';
+    img.onerror = () => {
+      imageArea.innerHTML = '<div class="image-placeholder">Картинка недоступна</div>';
+    };
+    imageArea.appendChild(img);
+  } else {
+    imageArea.innerHTML = '<div class="image-placeholder">Картинка отсутствует</div>';
+  }
+}
 
-        card.innerHTML = `
-            <div class="word">${item.word}</div>
-            <button class="tts-btn" onclick="speak('${item.word}', 'en-US')">🔊 EN</button>
 
-            <div class="translation">${item.translation}</div>
-            <button class="tts-btn" onclick="speak('${item.translation}', 'ru-RU')">🔊 RU</button>
+    function loadRandomWord() {
+      if (!words.length) return;
+      const idx = Math.floor(Math.random() * words.length);
+      current = words[idx];
+      wordRevealed = false;
 
-            <img src="${item.image}" class="picture" alt="${item.word}" onerror="this.style.display='none'">
-        `;
-    }
+  wordText.textContent = current.word || '---';
+  transText.textContent = '['+current.transcription+']' || '---';
+  translationText.textContent = current.translation || '---';
+  setImage(current.image && current.image.length ? current.image : null);
 
-    // ===================== NEXT WORD =====================
-    function loadNextWord() {
-        currentIndex++;
-        if (currentIndex >= words.length) currentIndex = 0;
-        showWord(words[currentIndex]);
-    }
+  // Скрываем поле полностью (чтобы анимация срабатывала)
+  wordField.classList.add('hidden');
 
-    // Init
-    loadWords();
-</script>
+  // Убираем метку "visible" у текста
+  wordText.classList.remove('visible');
+  transText.classList.remove('visible');
 
+ // Даем полю класс hidden, чтобы скрыть текст сразу
+  wordField.classList.add('hidden');
+
+  // Через небольшой таймаут показываем сам контейнер поля, но текст — всё ещё скрыт
+  setTimeout(() => {
+    wordField.classList.remove('hidden');
+  }, 50);
+}
+
+wordField.addEventListener('click', () => {
+  if (!wordRevealed) {
+    wordText.classList.add('visible');
+    transText.classList.add('visible');
+    wordRevealed = true;
+  }
+});
+
+    nextBtn.addEventListener('click', () => {
+      loadRandomWord();
+    });
+
+    (async () => {
+      await loadWords();
+      loadRandomWord();
+    })();
+  </script>
 </body>
 </html>
