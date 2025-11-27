@@ -41,8 +41,8 @@
       box-shadow:0 8px 22px rgba(0,0,0,0.08);
       display:flex;
       flex-direction:column;
+      justify-content:space-between;   /* <<< добавлено */
       gap:16px;
-      overflow:auto;
     }
 
     .header{ display:flex; align-items:center; justify-content:space-between; }
@@ -167,6 +167,13 @@
     }
     .btn:hover{ background:var(--accent-dark); }
 
+    .content{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      flex:1;              /* растягивает контент вверх */
+    }
+    
     /* адаптив */
     @media (max-width:420px){
       .word-text{ font-size:20px; }
@@ -178,33 +185,37 @@
   <div class="app">
     <div class="card">
 
-      <div class="header">
-        <div id="username" class="username">Привет!</div>
-      </div>
-
-      <div id="imageArea" class="image-area">
-        <div id="imagePlaceholder" class="image-placeholder">Картинка отсутствует</div>
-      </div>
-
-      <div class="center">
-        <!-- Английское слово + транскрипция + EN button (справа) -->
-        <div id="wordField" class="field" role="button" tabindex="0" aria-label="Показать английское слово">
-          <div class="field-row">
-            <div class="word-col">
-              <p id="wordText" class="word-text">---</p>
-              <p id="transText" class="trans-text">---</p>
-            </div>
-
-            <!-- EN small button (hidden until reveal) -->
-            <button id="speakEN_small" class="tts-btn small" aria-label="Озвучить английское слово">🔊</button>
+      <div class="content">
+      
+          <div class="header">
+            <div id="username" class="username">Привет!</div>
           </div>
-        </div>
-
-        <!-- Перевод + RU button (справа, видна всегда) -->
-        <div class="translation-field" aria-live="polite">
-          <p id="translationText" class="translation-text">---</p>
-          <button id="speakRU_small" class="tts-btn small" aria-label="Озвучить перевод">🔊</button>
-        </div>
+    
+          <div id="imageArea" class="image-area">
+            <div id="imagePlaceholder" class="image-placeholder">Картинка отсутствует</div>
+          </div>
+    
+          <div class="center">
+            <!-- Английское слово + транскрипция + EN button (справа) -->
+            <div id="wordField" class="field" role="button" tabindex="0" aria-label="Показать английское слово">
+              <div class="field-row">
+                <div class="word-col">
+                  <p id="wordText" class="word-text">---</p>
+                  <p id="transText" class="trans-text">---</p>
+                </div>
+    
+                <!-- EN small button (hidden until reveal) -->
+                <button id="speakEN_small" class="tts-btn small" aria-label="Озвучить английское слово">🔊</button>
+              </div>
+            </div>
+    
+            <!-- Перевод + RU button (справа, видна всегда) -->
+            <div class="translation-field" aria-live="polite">
+              <p id="translationText" class="translation-text">---</p>
+              <button id="speakRU_small" class="tts-btn small" aria-label="Озвучить перевод">🔊</button>
+            </div>
+          </div>
+        
       </div>
 
       <button id="nextBtn" class="btn" aria-label="Следующее слово">Следующее слово</button>
@@ -387,3 +398,4 @@ nextBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
