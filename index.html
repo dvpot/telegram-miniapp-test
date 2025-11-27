@@ -7,194 +7,173 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    :root {
-      --bg: #eef2f5;
-      --card: #ffffff;
-      --accent: #0088cc;
-      --accent-dark: #006fa6;
-      --muted: #6b7280;
-      --radius: 14px;
+    :root{
+      --bg:#eef2f5;
+      --card:#ffffff;
+      --accent:#0088cc;
+      --accent-dark:#006fa6;
+      --muted:#6b7280;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
 
-    body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: var(--bg);
+    .app{
+      max-width:600px;
+      margin:0 auto;
+      height:100vh;
+      padding:12px;
+      display:flex;
+      align-items:stretch;
     }
 
-    .app {
-      max-width: 600px;
-      margin: 0 auto;
-      height: 100vh;
-      padding: 12px;
-      box-sizing: border-box;
-      display: flex;
+    .card{
+      flex:1;
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:0 8px 22px rgba(0,0,0,0.08);
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      overflow:auto;
     }
 
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 18px;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      flex: 1;
+    .header{ display:flex; align-items:center; justify-content:space-between; }
+    .username{ font-size:20px; font-weight:700; margin:0; }
+
+    .image-area{
+      width:100%;
+      min-height:160px;
+      background:#e9ecef;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .image-area img{ width:100%; height:auto; object-fit:cover; display:block; }
+
+    .image-placeholder{ color:var(--muted); font-size:14px; padding:8px 12px; text-align:center; }
+
+    /* общий контейнер для центральной части */
+    .center {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
     }
 
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .username {
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .image-area {
-      width: 100%;
-      min-height: 180px;
-      background: #e9ecef;
-      border-radius: 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .image-area img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-    }
-
-    .image-placeholder {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    /* Поле слово + транскрипция */
+    /* поле английского слова (и транскрипции) */
     .field {
-      background: #fafafa;
-      border: 1px solid #d0d0d0;
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.3s;
-      position: relative;
+      background:#fafafa;
+      border:1px solid #d7d7d7;
+      border-radius:12px;
+      padding:12px;
+      cursor:pointer;
+      transition:background .18s ease;
+    }
+    .field:hover{ background:#f4f6f7; }
+
+    /* строка с текстом и кнопкой справа */
+    .field-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
 
-    .field:hover {
-      background: #f0f0f0;
+    .word-col{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
     }
 
-    .word-text {
-      font-size: 26px;
-      font-weight: 700;
-      margin: 0;
-      opacity: 0;
-      transition: opacity .3s;
+    .word-text{
+      font-size:24px;
+      font-weight:700;
+      margin:0;
+      color:#111;
+      opacity:0;
+      transition:opacity .28s ease;
+      word-break:break-word;
+    }
+    .trans-text{
+      font-size:15px;
+      color:var(--muted);
+      margin:0;
+      opacity:0;
+      transition:opacity .28s ease;
+    }
+    .visible{ opacity:1 !important; }
+
+    /* переводный блок с кнопкой справа */
+    .translation-field{
+      background:#fafafa;
+      border-radius:12px;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border:1px solid #d7d7d7;
+    }
+    .translation-text{
+      font-size:22px;
+      font-weight:700;
+      margin:0;
+      color:#111;
     }
 
-    .trans-text {
-      font-size: 18px;
-      color: var(--muted);
-      margin: 8px 0 0 0;
-      opacity: 0;
-      transition: opacity .3s;
-    }
-
-    .visible { opacity: 1 !important; }
-
-    /* Перевод */
-    .translation-field {
-      background: #fafafa;
-      padding: 18px;
-      border-radius: 12px;
-      text-align: center;
-      font-size: 26px;
-      font-weight: 700;
-    }
-
-    /* Кнопки озвучки */
-    .tts-row {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-    }
-
+    /* кнопки озвучки (малые) */
     .tts-btn {
-      padding: 10px 16px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 30px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.2s;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:50%;
+      width:40px;
+      height:40px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      cursor:pointer;
+      transition:transform .12s ease, background .12s;
+      box-shadow:0 4px 8px rgba(0,0,0,0.06);
     }
+    .tts-btn:hover{ transform:translateY(-2px); background:var(--accent-dark); }
+    .tts-btn.small{ width:38px; height:38px; font-size:15px; }
 
-    .tts-btn:hover {
-      background: var(--accent-dark);
+    /* EN button hidden until reveal */
+    #speakEN_small{ opacity:0; pointer-events:none; transition:opacity .2s; }
+    #speakEN_small.visible{ opacity:1; pointer-events:auto; }
+
+    /* кнопка "Следующее" */
+    .btn{
+      width:100%;
+      padding:14px;
+      border-radius:12px;
+      background:var(--accent);
+      color:#fff;
+      font-size:18px;
+      font-weight:700;
+      border:none;
+      cursor:pointer;
     }
+    .btn:hover{ background:var(--accent-dark); }
 
-    /* Кнопка нового слова */
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      background: var(--accent);
-      color: white;
-      font-size: 20px;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: .2s;
+    /* адаптив */
+    @media (max-width:420px){
+      .word-text{ font-size:20px; }
+      .translation-text{ font-size:20px; }
     }
-
-    .btn:hover {
-      background: var(--accent-dark);
-    }
-
-    .field-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.word-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.tts-btn.small {
-  padding: 6px 10px;
-  font-size: 14px;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#speakEN {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .3s;
-}
-
-#speakEN.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
   </style>
 </head>
-
 <body>
   <div class="app">
     <div class="card">
@@ -207,133 +186,204 @@
         <div id="imagePlaceholder" class="image-placeholder">Картинка отсутствует</div>
       </div>
 
-      <!-- КНОПКИ ОЗВУЧКИ -->
-      <div class="tts-row">
-        <button class="tts-btn" id="speakEN">🔊 EN</button>
-        <button class="tts-btn" id="speakRU">🔊 RU</button>
+      <div class="center">
+        <!-- Английское слово + транскрипция + EN button (справа) -->
+        <div id="wordField" class="field" role="button" tabindex="0" aria-label="Показать английское слово">
+          <div class="field-row">
+            <div class="word-col">
+              <p id="wordText" class="word-text">---</p>
+              <p id="transText" class="trans-text">---</p>
+            </div>
+
+            <!-- EN small button (hidden until reveal) -->
+            <button id="speakEN_small" class="tts-btn small" aria-label="Озвучить английское слово">🔊</button>
+          </div>
+        </div>
+
+        <!-- Перевод + RU button (справа, видна всегда) -->
+        <div class="translation-field" aria-live="polite">
+          <p id="translationText" class="translation-text">---</p>
+          <button id="speakRU_small" class="tts-btn small" aria-label="Озвучить перевод">🔊</button>
+        </div>
       </div>
 
-<!-- БЛОК СЛОВА И ТРАНСКРИПЦИИ -->
-<div class="field" id="wordField">
-  <div class="field-row">
-    <div class="word-col">
-      <p id="wordText" class="word-text">---</p>
-      <p id="transText" class="trans-text">---</p>
-    </div>
-    <button class="tts-btn small" id="speakEN">🔊</button>
-  </div>
-</div>
-
-<!-- БЛОК ПЕРЕВОДА -->
-<div class="translation-field">
-  <div class="field-row">
-    <p id="translationText">---</p>
-    <button class="tts-btn small" id="speakRU">🔊</button>
-  </div>
-</div>
-
-      <button id="nextBtn" class="btn">Следующее слово</button>
+      <button id="nextBtn" class="btn" aria-label="Следующее слово">Следующее слово</button>
     </div>
   </div>
 
 <script>
-/* ИНИЦИАЛИЗАЦИЯ TELEGRAM */
+/* Telegram WebApp init */
 const tg = window.Telegram?.WebApp;
 if (tg) tg.ready();
 
+/* Elements */
 const usernameEl = document.getElementById('username');
 const user = tg?.initDataUnsafe?.user;
-if (user) {
-    usernameEl.textContent = `Привет, ${user.first_name || user.username}!`;
-}
+if (user) usernameEl.textContent = `Привет, ${user.first_name || user.username}!`;
 
-/* ЭЛЕМЕНТЫ */
 const imageArea = document.getElementById('imageArea');
 const imagePlaceholder = document.getElementById('imagePlaceholder');
 const wordField = document.getElementById('wordField');
 const wordText = document.getElementById('wordText');
 const transText = document.getElementById('transText');
 const translationText = document.getElementById('translationText');
-const btnEN = document.getElementById('speakEN');
-const btnRU = document.getElementById('speakRU');
+const speakENBtn = document.getElementById('speakEN_small');
+const speakRUBtn = document.getElementById('speakRU_small');
 const nextBtn = document.getElementById('nextBtn');
 
 let words = [];
 let current = null;
 let revealed = false;
 
-/* SPEECH API */
-function speak(text, lang) {
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = lang;
-    speechSynthesis.speak(utter);
+/* Utility: set image or placeholder */
+function setImage(src){
+  imageArea.innerHTML = '';
+  if (!src){
+    imageArea.appendChild(imagePlaceholder);
+    return;
+  }
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = current?.word || 'image';
+  img.onerror = () => {
+    imageArea.innerHTML = '';
+    imageArea.appendChild(imagePlaceholder);
+  };
+  imageArea.appendChild(img);
 }
 
-/* КАРТИНКА */
-function setImage(src) {
-    imageArea.innerHTML = "";
-    if (!src) {
-        imageArea.innerHTML = '<div class="image-placeholder">Картинка отсутствует</div>';
-        return;
-    }
-    const img = document.createElement('img');
-    img.src = src;
-    img.onerror = () => {
-        imageArea.innerHTML = '<div class="image-placeholder">Картинка недоступна</div>';
-    };
-    imageArea.appendChild(img);
-}
-
-/* ЗАГРУЗКА СЛОВ */
-async function loadWords() {
-    const r = await fetch("words.json", {cache: "no-store"});
+/* Load words.json (must be UTF-8) */
+async function loadWords(){
+  try{
+    const r = await fetch('words.json', {cache: 'no-store'});
     words = await r.json();
+  } catch(e){
+    console.error('Ошибка загрузки words.json', e);
+    words = [];
+  }
 }
 
-/* ПОКАЗАТЬ СЛУЧАЙНОЕ */
-function loadRandomWord() {
-    if (!words.length) return;
-
-    const idx = Math.floor(Math.random() * words.length);
-    current = words[idx];
-    revealed = false;
-
-    wordText.textContent = current.word;
-    transText.textContent = `[${current.transcription}]`;
-    translationText.textContent = current.translation;
-
-    setImage(current.image);
-
-    // скрыть текст
-    wordText.classList.remove("visible");
-    transText.classList.remove("visible");
-    speakEN.classList.remove("visible");
-
+/* get voice by lang (try to pick best match) */
+function getVoice(langPrefix){
+  const voices = speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+  // try exact language
+  let v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith(langPrefix.toLowerCase()));
+  if (v) return v;
+  // try english fallback
+  v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith('en'));
+  if (v) return v;
+  return voices[0];
 }
 
-/* ПОКАЗ СЛОВА ПО КЛИКУ */
-wordField.addEventListener("click", () => {
-    if (!revealed) {
-        wordText.classList.add("visible");
-        transText.classList.add("visible");
-        speakEN.classList.add("visible");
-        revealed = true;
-    }
+/* speak with fallback and safe checks */
+function speak(text, langTag){
+  if (!text) return;
+  if (!('speechSynthesis' in window)){
+    console.warn('Speech Synthesis not supported');
+    return;
+  }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = langTag;
+  const v = getVoice(langTag.split('-')[0]);
+  if (v) utter.voice = v;
+  speechSynthesis.cancel(); // stop any previous
+  speechSynthesis.speak(utter);
+}
+
+/* load random word */
+function loadRandomWord(){
+  if (!words || words.length === 0) {
+    translationText.textContent = '---';
+    wordText.textContent = '---';
+    transText.textContent = '---';
+    setImage(null);
+    return;
+  }
+
+  const idx = Math.floor(Math.random() * words.length);
+  current = words[idx];
+  revealed = false;
+
+  // fill fields (with safe fallbacks)
+  wordText.textContent = current.word || '---';
+  transText.textContent = current.transcription ? `[${current.transcription}]` : '---';
+  translationText.textContent = current.translation || '---';
+
+  setImage(current.image && current.image.length ? current.image : null);
+
+  // hide english text and EN button
+  wordText.classList.remove('visible');
+  transText.classList.remove('visible');
+  speakENBtn.classList.remove('visible');
+}
+
+/* handle reveal on wordField click / Enter */
+function revealIfNeeded(){
+  if (!revealed){
+    wordText.classList.add('visible');
+    transText.classList.add('visible');
+    // show en button
+    speakENBtn.classList.add('visible');
+    revealed = true;
+  }
+}
+
+/* prevent button clicks from propagating to wordField */
+speakENBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!current) return;
+  // only allow when visible (safety)
+  if (!speakENBtn.classList.contains('visible')) return;
+  speak(current.word, 'en-US');
 });
 
-/* КНОПКИ ОЗВУЧКИ */
-btnEN.onclick = () => speak(current.word, "en-US");
-btnRU.onclick = () => speak(current.translation, "ru-RU");
+speakRUBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!current) return;
+  speak(current.translation, 'ru-RU');
+});
 
-/* КНОПКА СЛЕДУЮЩЕГО */
-nextBtn.onclick = loadRandomWord;
+/* allow keyboard access (Enter/Space) to reveal */
+wordField.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    revealIfNeeded();
+  }
+});
 
-/* СТАРТ */
-(async () => {
-    await loadWords();
-    loadRandomWord();
+/* clicking the field reveals word/transcription */
+wordField.addEventListener('click', () => revealIfNeeded());
+
+/* next button */
+nextBtn.addEventListener('click', () => {
+  // cancel any ongoing speech
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  loadRandomWord();
+});
+
+/* init: load voices then words */
+(async function init(){
+  // ensure voices populated (some browsers load them asynchronously)
+  await new Promise(resolve => {
+    let done = false;
+    function tryVoices(){
+      const v = speechSynthesis.getVoices();
+      if (v && v.length){
+        if (!done){ done = true; resolve(); }
+      } else {
+        // wait a bit and retry, max ~500ms
+        setTimeout(tryVoices, 80);
+      }
+    }
+    tryVoices();
+    // also resolve after 700ms even if empty
+    setTimeout(() => { if (!done){ done = true; resolve(); } }, 700);
+  });
+
+  await loadWords();
+  loadRandomWord();
 })();
 </script>
 </body>
 </html>
-
