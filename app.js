@@ -134,7 +134,7 @@ function showTranslationAsImageText(translation){
  */
 async function loadWords(){
   try{
-    const r = await fetch('./words.json?v=2', { cache: 'no-store' });
+    const r = await fetch('words.json', { cache: 'no-store' });
     words = await r.json();
   }catch(e){
     console.error('Ошибка загрузки words.json', e);
