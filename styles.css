@@ -52,46 +52,45 @@ body{
 .header{ display:flex; align-items:center; justify-content:space-between; }
 .username{ font-size:20px; font-weight:700; margin:0; }
 
-/* === Блок изображения ===
-   Ограничиваем высоту и используем object-fit: contain для безопасного масштабирования.
-   Добавлен border и padding — теперь выглядит как поле тоже (как остальные поля).
-*/
+/* === Блок изображения — фиксированная высота === */
 .image-area{
-  width:100%;
-  min-height:140px;                 /* минимальная высота для аккуратного вида */
-  max-height: var(--image-max-height); /* ограничение по высоте */
-  background:#ffffff;               /* белый фон — чтобы было как блок */
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;                  /* обрезаем лишнее, но картинка не будет обрезана логически */
-  border:1px solid #d7d7d7;         /* контур, как у остальных полей */
-  padding:12px;                      /* внутренний отступ — чтобы картинка не прилипала */
-  margin-bottom: var(--field-gap);  /* одинаковый отступ как между полями */
+  width: 100%;
+  height: 240px;                /* одинаковая высота для всех слов */
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #d7d7d7;
+  padding: 12px;
+  margin-top: var(--field-gap); /* добавили отступ сверху */
+  margin-bottom: var(--field-gap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;             /* скрываем лишнее */
   box-shadow: 0 1px 0 rgba(0,0,0,0.02) inset;
 }
 
-/* Изображение: масштабируем и центрируем, не обрезаем контент.
-   object-fit: contain гарантирует, что картинка влезет в блок полностью.
-   max-height/max-width предотвращают вытеснение контента. */
+/* Картинка теперь масштабируется и НЕ меняет размер блока */
 .image-area img{
-  max-width:100%;
-  max-height: calc(var(--image-max-height) - 24px); /* учитываем padding сверху/снизу */
-  object-fit: contain;       /* НЕ cover — чтобы не обрезалось */
-  display:block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
   margin: 0 auto;
   border-radius: 8px;
 }
 
 /* Текст-плейсхолдер в блоке изображения (показывается, если нет картинки) */
 .image-placeholder{
-  color:var(--muted);
-  font-size:28px;          /* крупный текст при отсутствии картинки */
-  font-weight:700;
-  padding:8px 12px;
-  text-align:center;
-  letter-spacing:0.5px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--muted);
 }
 
 /* === Центральная колонка с полем слова и переводом === */
