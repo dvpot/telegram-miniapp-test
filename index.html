@@ -247,19 +247,26 @@ let current = null;
 let revealed = false;
 
 /* Utility: set image or placeholder */
-function setImage(src){
+function setImage(src) {
   imageArea.innerHTML = '';
-  if (!src){
+
+  if (!src) {
+    // Показать placeholder
+    imagePlaceholder.textContent = 'Картинка отсутствует';
     imageArea.appendChild(imagePlaceholder);
     return;
   }
+
   const img = document.createElement('img');
   img.src = src;
   img.alt = current?.word || 'image';
+
   img.onerror = () => {
     imageArea.innerHTML = '';
+    imagePlaceholder.textContent = 'Ошибка загрузки';
     imageArea.appendChild(imagePlaceholder);
   };
+
   imageArea.appendChild(img);
 }
 
@@ -398,4 +405,5 @@ nextBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
