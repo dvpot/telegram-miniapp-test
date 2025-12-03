@@ -59,7 +59,7 @@
   {"id":58,"word":"hand","transcription":"hænd","translation":"кисть","image":"images/hand.jpg"},
   {"id":59,"word":"eyes","transcription":"aɪz","translation":"глаза","image":"images/eyes.jpg"},
   {"id":60,"word":"eyebrows","transcription":"ˈaɪbraʊz","translation":"брови","image":"images/eyebrows.jpg"},
-  {"id":61,"word":"shoulders","transcription":"ˈʃəʊldəz","translation":"плечи","image":"images/shoulders.jpg"}
+  {"id":61,"word":"shoulders","transcription":"ˈʃəʊldəz","translation":"плечи","image":"images/shoulders.jpg"},
   {"id":62,"word":"zero","transcription":"ˈzɪəroʊ","translation":"0","image":"images/zero.jpg"},
   {"id":63,"word":"one","transcription":"wʌn","translation":"1","image":"images/one.jpg"},
   {"id":64,"word":"two","transcription":"tuː","translation":"2","image":"images/two.jpg"},
@@ -82,3 +82,4 @@
   {"id":81,"word":"nineteen","transcription":"ˌnaɪnˈtiːn","translation":"19","image":"images/nineteen.jpg"},
   {"id":82,"word":"twenty","transcription":"ˈtwenti","translation":"20","image":"images/twenty.jpg"}
 ]
+
