@@ -57,10 +57,195 @@
     </div>
   </div>
 
-  <!-- Подключаем JS (отдельный файл app.js) -->
-  <script src="app.js"></script>
+  <!-- Подключаем JS (отдельный файл app.js)
+  <script src="app.js"></script> -->
+
+    <!-- ВСТРОЕННЫЙ APP.JS -->
+  <script>
+
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.ready();
+
+    const usernameEl = document.getElementById('username');
+    const imageArea = document.getElementById('imageArea');
+    const wordField = document.getElementById('wordField');
+    const wordText = document.getElementById('wordText');
+    const transText = document.getElementById('transText');
+    const translationText = document.getElementById('translationText');
+    const speakENBtn = document.getElementById('speakEN_small');
+    const speakRUBtn = document.getElementById('speakRU_small');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const user = tg?.initDataUnsafe?.user;
+    if (user) usernameEl.textContent = `Привет, ${user.first_name || user.username}!`;
+
+    let words = [];
+    let current = null;
+    let revealed = false;
+
+    function colorForWord(word){
+      if (!word) return null;
+      const key = word.toLowerCase().trim();
+      const map = {
+        red:"red", blue:"blue", green:"green", yellow:"yellow",
+        pink:"pink", purple:"purple", black:"black", white:"white",
+        brown:"brown", grey:"grey", gray:"gray", orange:"orange",
+        golden:"gold", gold:"gold", silver:"silver",
+        dark:"#111", light:"#eee", "sky blue":"skyblue", skyblue:"skyblue"
+      };
+      return map[key] || null;
+    }
+
+    function imagePathOrNull(src){
+      if (!src || !src.trim()) return null;
+      return src.trim();
+    }
+
+    function showTranslationAsImageText(translation){
+      const label = document.createElement('div');
+      label.className = 'image-placeholder';
+      label.textContent = translation ? translation.toUpperCase() : '—';
+      imageArea.style.background = '#f3f4f6';
+      imageArea.appendChild(label);
+    }
+
+    function setImageContent(src, translation, word){
+      imageArea.innerHTML = '';
+      imageArea.style.background = '';
+
+      const color = colorForWord(word);
+      if (color){
+        imageArea.style.background = color;
+        const label = document.createElement('div');
+        label.className = 'image-placeholder';
+        label.textContent = '';
+        imageArea.appendChild(label);
+        return;
+      }
+
+      const imgPath = imagePathOrNull(src);
+      if (imgPath){
+        const img = document.createElement('img');
+        img.src = imgPath;
+        img.alt = word || translation || 'image';
+        img.onerror = () => {
+          imageArea.innerHTML = '';
+          showTranslationAsImageText(translation);
+        };
+        imageArea.appendChild(img);
+        return;
+      }
+
+      showTranslationAsImageText(translation);
+    }
+
+    async function loadWords(){
+      try{
+        const r = await fetch('words.json', { cache: 'no-store' });
+        words = await r.json();
+      }catch(e){
+        console.error('Ошибка загрузки words.json', e);
+        words = [];
+      }
+    }
+
+    function getVoice(prefix){
+      const voices = speechSynthesis.getVoices();
+      if (!voices.length) return null;
+      let v = voices.find(x => x.lang?.toLowerCase().startsWith(prefix));
+      if (v) return v;
+      v = voices.find(x => x.lang?.toLowerCase().startsWith('en'));
+      return v || voices[0];
+    }
+
+    function speak(text, lang){
+      if (!text) return;
+      if (!('speechSynthesis' in window)) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      const v = getVoice(lang.split('-')[0]);
+      if (v) u.voice = v;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
+
+    function loadRandomWord(){
+      if (!words.length){
+        wordText.textContent = transText.textContent = translationText.textContent = '---';
+        setImageContent(null,null,null);
+        return;
+      }
+
+      const idx = Math.floor(Math.random() * words.length);
+      current = words[idx];
+      revealed = false;
+
+      wordText.textContent = current.word || '---';
+      transText.textContent = current.transcription ? `[${current.transcription}]` : '---';
+      translationText.textContent = current.translation || '---';
+
+      setImageContent(current.image || null, current.translation, current.word);
+
+      wordText.classList.remove('visible');
+      transText.classList.remove('visible');
+      speakENBtn.classList.remove('visible');
+    }
+
+    function reveal(){
+      if (!revealed){
+        wordText.classList.add('visible');
+        transText.classList.add('visible');
+        speakENBtn.classList.add('visible');
+        revealed = true;
+      }
+    }
+
+    speakENBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (current && speakENBtn.classList.contains('visible'))
+        speak(current.word, 'en-US');
+    });
+
+    speakRUBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (current)
+        speak(current.translation, 'ru-RU');
+    });
+
+    wordField.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        reveal();
+      }
+    });
+
+    wordField.addEventListener('click', reveal);
+
+    nextBtn.addEventListener('click', () => {
+      speechSynthesis.cancel();
+      loadRandomWord();
+    });
+
+    (async function init(){
+      await new Promise(resolve=>{
+        let done=false;
+        function tick(){
+          if (speechSynthesis.getVoices().length){
+            if(!done){done=true;resolve();}
+          } else setTimeout(tick,80);
+        }
+        tick();
+        setTimeout(()=>{if(!done){done=true;resolve();}},700);
+      });
+
+      await loadWords();
+      loadRandomWord();
+    })();
+
+  </script>
 </body>
 </html>
+
 
 
 
