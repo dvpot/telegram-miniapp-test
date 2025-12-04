@@ -148,7 +148,7 @@ async function loadWords(){
  * Попытка найти подходящий голос по префиксу языка.
  * Возвращает объект Voice или null.
  */
-function getVoice(langPrefix){
+/*function getVoice(langPrefix){
   const voices = speechSynthesis.getVoices();
   if (!voices || voices.length === 0) return null;
   // пытаемся найти голос с нужным префиксом (например "ru", "en")
@@ -158,16 +158,16 @@ function getVoice(langPrefix){
   v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith('en'));
   if (v) return v;
   return voices[0];
-}
+}*/
 
 /**
  * Произнести текст в заданном языке (langTag: 'en-US' или 'ru-RU').
  * Отменяет предыдущую синтез-озвучку, если она была.
  */
 function speak(text, langTag){
-  if (!text) return;
-  if (!('speechSynthesis' in window)){
-    console.warn('Speech Synthesis не поддерживается в браузере');
+  //if (!text) return;
+  //if (!('speechSynthesis' in window)){
+  //  console.warn('Speech Synthesis не поддерживается в браузере');
     return;
   }
   const utter = new SpeechSynthesisUtterance(text);
@@ -253,7 +253,7 @@ wordField.addEventListener('click', () => revealIfNeeded());
 
 /* Кнопка "Следующее слово" */
 nextBtn.addEventListener('click', () => {
-  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  //if ('speechSynthesis' in window) speechSynthesis.cancel();
   loadRandomWord();
 });
 
@@ -282,4 +282,5 @@ nextBtn.addEventListener('click', () => {
   // Загружаем слова и показываем первое
   await loadWords();
   loadRandomWord();
+
 })();
