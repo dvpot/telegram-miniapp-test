@@ -1,6 +1,6 @@
 [
   {"id":1,"word":"pen","transcription":"pen","translation":"ручка","image":""},
-  {"id":2,"word":"pencil","transcription":"ˈpens(ə)l","translation":"карандаш",""},
+  {"id":2,"word":"pencil","transcription":"ˈpens(ə)l","translation":"карандаш","image":""},
   {"id":3,"word":"rubber","transcription":"ˈrʌbə","translation":"ластик","image":""},
   {"id":4,"word":"ruler","transcription":"ˈruːlə","translation":"линейка","image":""},
   {"id":5,"word":"book","transcription":"bʊk","translation":"книга","image":""},
