@@ -1,12 +1,12 @@
 [
-  {"id":1,"word":"pen","transcription":"pen","translation":"ручка","image":"images/pen.jpg"},
-  {"id":2,"word":"pencil","transcription":"ˈpens(ə)l","translation":"карандаш","image":"images/pencil.jpg"},
-  {"id":3,"word":"rubber","transcription":"ˈrʌbə","translation":"ластик","image":"images/rubber.jpg"},
-  {"id":4,"word":"ruler","transcription":"ˈruːlə","translation":"линейка","image":"images/ruler.jpg"},
-  {"id":5,"word":"book","transcription":"bʊk","translation":"книга","image":"images/book.jpg"},
-  {"id":6,"word":"orange","transcription":"ˈɒrɪndʒ","translation":"апельсин","image":"images/orange.jpg"},
-  {"id":7,"word":"train","transcription":"treɪn","translation":"поезд","image":"images/train.jpg"},
-  {"id":8,"word":"plane","transcription":"pleɪn","translation":"самолёт","image":"images/plane.jpg"},
-  {"id":9,"word":"ball","transcription":"bɔːl","translation":"мяч","image":"images/ball.jpg"},
-  {"id":10,"word":"umbrella","transcription":"ʌmˈbrelə","translation":"зонт","image":"images/umbrella.jpg"}
+  {"id":1,"word":"pen","transcription":"pen","translation":"ручка","image":""},
+  {"id":2,"word":"pencil","transcription":"ˈpens(ə)l","translation":"карандаш",""},
+  {"id":3,"word":"rubber","transcription":"ˈrʌbə","translation":"ластик","image":""},
+  {"id":4,"word":"ruler","transcription":"ˈruːlə","translation":"линейка","image":""},
+  {"id":5,"word":"book","transcription":"bʊk","translation":"книга","image":""},
+  {"id":6,"word":"orange","transcription":"ˈɒrɪndʒ","translation":"апельсин","image":""},
+  {"id":7,"word":"train","transcription":"treɪn","translation":"поезд","image":""},
+  {"id":8,"word":"plane","transcription":"pleɪn","translation":"самолёт","image":""},
+  {"id":9,"word":"ball","transcription":"bɔːl","translation":"мяч","image":""},
+  {"id":10,"word":"umbrella","transcription":"ʌmˈbrelə","translation":"зонт","image":""}
 ]
