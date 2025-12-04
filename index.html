@@ -1,252 +1,407 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Telegram Mini App — English Words</title>
-
-  <!-- Подключаем стили (отдельный файл styles.css) -->
-  <link rel="stylesheet" href="styles.css">
-  <!-- Telegram WebApp (если доступно) -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    :root{
+      --bg:#eef2f5;
+      --card:#ffffff;
+      --accent:#0088cc;
+      --accent-dark:#006fa6;
+      --muted:#6b7280;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .app{
+      max-width:600px;
+      margin:0 auto;
+      height:100vh;
+      padding:12px;
+      display:flex;
+      align-items:stretch;
+    }
+
+    .card{
+      flex:1;
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:0 8px 22px rgba(0,0,0,0.08);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;   /* <<< добавлено */
+      gap:16px;
+    }
+
+    .header{ display:flex; align-items:center; justify-content:space-between; }
+    .username{ font-size:20px; font-weight:700; margin:0; }
+
+    .image-area{
+      width:100%;
+      min-height:160px;
+      background:#e9ecef;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .image-area img{ width:100%; height:auto; object-fit:cover; display:block; }
+
+    .image-placeholder{ color:var(--muted); font-size:14px; padding:8px 12px; text-align:center; }
+
+    /* общий контейнер для центральной части */
+    .center {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    /* поле английского слова (и транскрипции) */
+    .field {
+      background:#fafafa;
+      border:1px solid #d7d7d7;
+      border-radius:12px;
+      padding:12px;
+      cursor:pointer;
+      transition:background .18s ease;
+    }
+    .field:hover{ background:#f4f6f7; }
+
+    /* строка с текстом и кнопкой справа */
+    .field-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .word-col{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+
+    .word-text{
+      font-size:24px;
+      font-weight:700;
+      margin:0;
+      color:#111;
+      opacity:0;
+      transition:opacity .28s ease;
+      word-break:break-word;
+    }
+    .trans-text{
+      font-size:15px;
+      color:var(--muted);
+      margin:0;
+      opacity:0;
+      transition:opacity .28s ease;
+    }
+    .visible{ opacity:1 !important; }
+
+    /* переводный блок с кнопкой справа */
+    .translation-field{
+      background:#fafafa;
+      border-radius:12px;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border:1px solid #d7d7d7;
+    }
+    .translation-text{
+      font-size:22px;
+      font-weight:700;
+      margin:0;
+      color:#111;
+    }
+
+    /* кнопки озвучки (малые) */
+    .tts-btn {
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:50%;
+      width:40px;
+      height:40px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      cursor:pointer;
+      transition:transform .12s ease, background .12s;
+      box-shadow:0 4px 8px rgba(0,0,0,0.06);
+    }
+    .tts-btn:hover{ transform:translateY(-2px); background:var(--accent-dark); }
+    .tts-btn.small{ width:38px; height:38px; font-size:15px; }
+
+    /* EN button hidden until reveal */
+    #speakEN_small{ opacity:0; pointer-events:none; transition:opacity .2s; }
+    #speakEN_small.visible{ opacity:1; pointer-events:auto; }
+
+    /* кнопка "Следующее" */
+    .btn{
+      width:100%;
+      padding:14px;
+      border-radius:12px;
+      background:var(--accent);
+      color:#fff;
+      font-size:18px;
+      font-weight:700;
+      border:none;
+      cursor:pointer;
+    }
+    .btn:hover{ background:var(--accent-dark); }
+
+    .content{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      flex:1;              /* растягивает контент вверх */
+    }
+    
+    /* адаптив */
+    @media (max-width:420px){
+      .word-text{ font-size:20px; }
+      .translation-text{ font-size:20px; }
+    }
+  </style>
 </head>
 <body>
-  <!-- Основная оболочка приложения -->
   <div class="app">
     <div class="card">
 
-      <!-- Контентная область (вместе с картинкой, словами и пр.)
-           кнопка "Следующее слово" вынесена ниже, чтобы быть внизу карточки -->
       <div class="content">
-
-        <!-- Хедер: имя пользователя (берём из Telegram WebApp если доступно) -->
-        <div class="header">
-          <div id="username" class="username">Привет!</div>
-        </div>
-
-        <!-- Блок для изображения / цветного фона / заглушки.
-             Содержит placeholder по умолчанию. -->
-        <div id="imageArea" class="image-area" aria-live="polite">
-          <div id="imagePlaceholder" class="image-placeholder">Картинка отсутствует</div>
-        </div>
-
-        <!-- Центральная часть: английское слово + транскрипция + EN-кнопка (справа) -->
-        <div class="center">
-          <div id="wordField" class="field" role="button" tabindex="0" aria-label="Показать английское слово">
-            <div class="field-row">
-              <div class="word-col">
-                <p id="wordText" class="word-text">---</p>
-                <p id="transText" class="trans-text">---</p>
+      
+          <div class="header">
+            <div id="username" class="username">Привет!</div>
+          </div>
+    
+          <div id="imageArea" class="image-area">
+            <div id="imagePlaceholder" class="image-placeholder">Картинка отсутствует</div>
+          </div>
+    
+          <div class="center">
+            <!-- Английское слово + транскрипция + EN button (справа) -->
+            <div id="wordField" class="field" role="button" tabindex="0" aria-label="Показать английское слово">
+              <div class="field-row">
+                <div class="word-col">
+                  <p id="wordText" class="word-text">---</p>
+                  <p id="transText" class="trans-text">---</p>
+                </div>
+    
+                <!-- EN small button (hidden until reveal) -->
+                <button id="speakEN_small" class="tts-btn small" aria-label="Озвучить английское слово">??</button>
               </div>
-
-              <!-- EN small button: скрыта до раскрытия -->
-              <button id="speakEN_small" class="tts-btn small" aria-label="Озвучить английское слово">🔊</button>
+            </div>
+    
+            <!-- Перевод + RU button (справа, видна всегда) -->
+            <div class="translation-field" aria-live="polite">
+              <p id="translationText" class="translation-text">---</p>
+              <button id="speakRU_small" class="tts-btn small" aria-label="Озвучить перевод">??</button>
             </div>
           </div>
-
-          <!-- Перевод + RU button (справа, видна всегда) -->
-          <div class="translation-field" aria-live="polite">
-            <p id="translationText" class="translation-text">---</p>
-            <button id="speakRU_small" class="tts-btn small" aria-label="Озвучить перевод">🔊</button>
-          </div>
-        </div>
+        
       </div>
 
-      <!-- Кнопка "Следующее слово" всегда внизу карточки -->
       <button id="nextBtn" class="btn" aria-label="Следующее слово">Следующее слово</button>
     </div>
   </div>
 
-  <!-- Подключаем JS (отдельный файл app.js)
-  <script src="app.js"></script> -->
+<script>
+/* Telegram WebApp init */
+const tg = window.Telegram?.WebApp;
+if (tg) tg.ready();
 
-    <!-- ВСТРОЕННЫЙ APP.JS -->
-  <script>
+/* Elements */
+const usernameEl = document.getElementById('username');
+const user = tg?.initDataUnsafe?.user;
+if (user) usernameEl.textContent = `Привет, ${user.first_name || user.username}!`;
 
-    const tg = window.Telegram?.WebApp;
-    if (tg) tg.ready();
+const imageArea = document.getElementById('imageArea');
+const imagePlaceholder = document.getElementById('imagePlaceholder');
+const wordField = document.getElementById('wordField');
+const wordText = document.getElementById('wordText');
+const transText = document.getElementById('transText');
+const translationText = document.getElementById('translationText');
+const speakENBtn = document.getElementById('speakEN_small');
+const speakRUBtn = document.getElementById('speakRU_small');
+const nextBtn = document.getElementById('nextBtn');
 
-    const usernameEl = document.getElementById('username');
-    const imageArea = document.getElementById('imageArea');
-    const wordField = document.getElementById('wordField');
-    const wordText = document.getElementById('wordText');
-    const transText = document.getElementById('transText');
-    const translationText = document.getElementById('translationText');
-    const speakENBtn = document.getElementById('speakEN_small');
-    const speakRUBtn = document.getElementById('speakRU_small');
-    const nextBtn = document.getElementById('nextBtn');
+let words = [];
+let current = null;
+let revealed = false;
 
-    const user = tg?.initDataUnsafe?.user;
-    if (user) usernameEl.textContent = `Привет, ${user.first_name || user.username}!`;
+/* Utility: set image or placeholder */
+function setImage(src) {
+  imageArea.innerHTML = '';
 
-    let words = [];
-    let current = null;
-    let revealed = false;
+  if (!src) {
+    // Показать placeholder
+    imagePlaceholder.textContent = 'Картинка отсутствует';
+    imageArea.appendChild(imagePlaceholder);
+    return;
+  }
 
-    function colorForWord(word){
-      if (!word) return null;
-      const key = word.toLowerCase().trim();
-      const map = {
-        red:"red", blue:"blue", green:"green", yellow:"yellow",
-        pink:"pink", purple:"purple", black:"black", white:"white",
-        brown:"brown", grey:"grey", gray:"gray", orange:"orange",
-        golden:"gold", gold:"gold", silver:"silver",
-        dark:"#111", light:"#eee", "sky blue":"skyblue", skyblue:"skyblue"
-      };
-      return map[key] || null;
-    }
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = current?.word || 'image';
 
-    function imagePathOrNull(src){
-      if (!src || !src.trim()) return null;
-      return src.trim();
-    }
+  img.onerror = () => {
+    imageArea.innerHTML = '';
+    imagePlaceholder.textContent = 'Ошибка загрузки';
+    imageArea.appendChild(imagePlaceholder);
+  };
 
-    function showTranslationAsImageText(translation){
-      const label = document.createElement('div');
-      label.className = 'image-placeholder';
-      label.textContent = translation ? translation.toUpperCase() : '—';
-      imageArea.style.background = '#f3f4f6';
-      imageArea.appendChild(label);
-    }
+  imageArea.appendChild(img);
+}
 
-    function setImageContent(src, translation, word){
-      imageArea.innerHTML = '';
-      imageArea.style.background = '';
+/* Load words.json (must be UTF-8) */
+async function loadWords(){
+  try{
+    const r = await fetch('words.json', {cache: 'no-store'});
+    words = await r.json();
+  } catch(e){
+    console.error('Ошибка загрузки words.json', e);
+    words = [];
+  }
+}
 
-      const color = colorForWord(word);
-      if (color){
-        imageArea.style.background = color;
-        const label = document.createElement('div');
-        label.className = 'image-placeholder';
-        label.textContent = '';
-        imageArea.appendChild(label);
-        return;
+/* get voice by lang (try to pick best match) */
+function getVoice(langPrefix){
+  const voices = speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+  // try exact language
+  let v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith(langPrefix.toLowerCase()));
+  if (v) return v;
+  // try english fallback
+  v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith('en'));
+  if (v) return v;
+  return voices[0];
+}
+
+/* speak with fallback and safe checks */
+function speak(text, langTag){
+  if (!text) return;
+  if (!('speechSynthesis' in window)){
+    console.warn('Speech Synthesis not supported');
+    return;
+  }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = langTag;
+  const v = getVoice(langTag.split('-')[0]);
+  if (v) utter.voice = v;
+  speechSynthesis.cancel(); // stop any previous
+  speechSynthesis.speak(utter);
+}
+
+/* load random word */
+function loadRandomWord(){
+  if (!words || words.length === 0) {
+    translationText.textContent = '---';
+    wordText.textContent = '---';
+    transText.textContent = '---';
+    setImage(null);
+    return;
+  }
+
+  const idx = Math.floor(Math.random() * words.length);
+  current = words[idx];
+  revealed = false;
+
+  // fill fields (with safe fallbacks)
+  wordText.textContent = current.word || '---';
+  transText.textContent = current.transcription ? `[${current.transcription}]` : '---';
+  translationText.textContent = current.translation || '---';
+
+  setImage(current.image && current.image.length ? current.image : null);
+
+  // hide english text and EN button
+  wordText.classList.remove('visible');
+  transText.classList.remove('visible');
+  speakENBtn.classList.remove('visible');
+}
+
+/* handle reveal on wordField click / Enter */
+function revealIfNeeded(){
+  if (!revealed){
+    wordText.classList.add('visible');
+    transText.classList.add('visible');
+    // show en button
+    speakENBtn.classList.add('visible');
+    revealed = true;
+  }
+}
+
+/* prevent button clicks from propagating to wordField */
+speakENBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!current) return;
+  // only allow when visible (safety)
+  if (!speakENBtn.classList.contains('visible')) return;
+  speak(current.word, 'en-US');
+});
+
+speakRUBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!current) return;
+  speak(current.translation, 'ru-RU');
+});
+
+/* allow keyboard access (Enter/Space) to reveal */
+wordField.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    revealIfNeeded();
+  }
+});
+
+/* clicking the field reveals word/transcription */
+wordField.addEventListener('click', () => revealIfNeeded());
+
+/* next button */
+nextBtn.addEventListener('click', () => {
+  // cancel any ongoing speech
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  loadRandomWord();
+});
+
+/* init: load voices then words */
+(async function init(){
+  // ensure voices populated (some browsers load them asynchronously)
+  await new Promise(resolve => {
+    let done = false;
+    function tryVoices(){
+      const v = speechSynthesis.getVoices();
+      if (v && v.length){
+        if (!done){ done = true; resolve(); }
+      } else {
+        // wait a bit and retry, max ~500ms
+        setTimeout(tryVoices, 80);
       }
-
-      const imgPath = imagePathOrNull(src);
-      if (imgPath){
-        const img = document.createElement('img');
-        img.src = imgPath;
-        img.alt = word || translation || 'image';
-        img.onerror = () => {
-          imageArea.innerHTML = '';
-          showTranslationAsImageText(translation);
-        };
-        imageArea.appendChild(img);
-        return;
-      }
-
-      showTranslationAsImageText(translation);
     }
+    tryVoices();
+    // also resolve after 700ms even if empty
+    setTimeout(() => { if (!done){ done = true; resolve(); } }, 700);
+  });
 
-    async function loadWords(){
-      try{
-        const r = await fetch('words.json', { cache: 'no-store' });
-        words = await r.json();
-      }catch(e){
-        console.error('Ошибка загрузки words.json', e);
-        words = [];
-      }
-    }
-
-    function getVoice(prefix){
-      const voices = speechSynthesis.getVoices();
-      if (!voices.length) return null;
-      let v = voices.find(x => x.lang?.toLowerCase().startsWith(prefix));
-      if (v) return v;
-      v = voices.find(x => x.lang?.toLowerCase().startsWith('en'));
-      return v || voices[0];
-    }
-
-    function speak(text, lang){
-      if (!text) return;
-      if (!('speechSynthesis' in window)) return;
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang;
-      const v = getVoice(lang.split('-')[0]);
-      if (v) u.voice = v;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
-    }
-
-    function loadRandomWord(){
-      if (!words.length){
-        wordText.textContent = transText.textContent = translationText.textContent = '---';
-        setImageContent(null,null,null);
-        return;
-      }
-
-      const idx = Math.floor(Math.random() * words.length);
-      current = words[idx];
-      revealed = false;
-
-      wordText.textContent = current.word || '---';
-      transText.textContent = current.transcription ? `[${current.transcription}]` : '---';
-      translationText.textContent = current.translation || '---';
-
-      setImageContent(current.image || null, current.translation, current.word);
-
-      wordText.classList.remove('visible');
-      transText.classList.remove('visible');
-      speakENBtn.classList.remove('visible');
-    }
-
-    function reveal(){
-      if (!revealed){
-        wordText.classList.add('visible');
-        transText.classList.add('visible');
-        speakENBtn.classList.add('visible');
-        revealed = true;
-      }
-    }
-
-    speakENBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      if (current && speakENBtn.classList.contains('visible'))
-        speak(current.word, 'en-US');
-    });
-
-    speakRUBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      if (current)
-        speak(current.translation, 'ru-RU');
-    });
-
-    wordField.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        reveal();
-      }
-    });
-
-    wordField.addEventListener('click', reveal);
-
-    nextBtn.addEventListener('click', () => {
-      speechSynthesis.cancel();
-      loadRandomWord();
-    });
-
-    (async function init(){
-      await new Promise(resolve=>{
-        let done=false;
-        function tick(){
-          if (speechSynthesis.getVoices().length){
-            if(!done){done=true;resolve();}
-          } else setTimeout(tick,80);
-        }
-        tick();
-        setTimeout(()=>{if(!done){done=true;resolve();}},700);
-      });
-
-      await loadWords();
-      loadRandomWord();
-    })();
-
-  </script>
+  await loadWords();
+  loadRandomWord();
+})();
+</script>
 </body>
 </html>
-
-
-
-
-
